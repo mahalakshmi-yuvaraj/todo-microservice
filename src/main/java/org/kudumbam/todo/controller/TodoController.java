@@ -19,22 +19,28 @@ public class TodoController {
 	
 	@Autowired
     private TodoService todoService;
+	
+	
+	@GetMapping("/todos")
+    public List<Todo> retrieveTodos() {
+      return todoService.retrieveTodos();
+    }
+    
 
     @GetMapping("/users/{name}/todos")
     public List<Todo> retrieveTodos(@PathVariable String name) {
-      return todoService.retrieveTodos(name);
+      return todoService.retrieveTodoByName(name);
     }
     
     @GetMapping(path = "/users/{name}/todos/{id}")
     public Todo retrieveTodo(@PathVariable String name, @PathVariable int id) {
-      return todoService.retrieveTodo(id);
+      return todoService.retrieveTodoById(id);
     }
 
-    @PostMapping("/users/{name}/todos")
-    ResponseEntity<?> add(@PathVariable String name,
-    @RequestBody Todo todo) { 
-      Todo createdTodo = todoService.addTodo(name, todo.getDesc(),
-      todo.getTargetDate(), todo.isDone());
+    @PostMapping("/todos")
+    ResponseEntity<?> add(@RequestBody Todo todo) { 
+      Todo createdTodo = todoService.addTodo(todo);
+      System.out.println("The value of the created Todo is " +createdTodo.toString());
       if (createdTodo == null) {
          return ResponseEntity.noContent().build();
       }
