@@ -24,6 +24,14 @@ public class Todo {
 		this.targetDate = targetDate;
 		this.isDone = isDone;
 	}
+	
+	public Todo(int id, String user, String description, Date targetDate, boolean isDone) {
+		this.id = id;
+		this.user = user;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.isDone = isDone;
+	}
 
 	public Todo() {
 	}

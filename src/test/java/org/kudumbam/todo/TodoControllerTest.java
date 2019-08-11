@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -35,14 +34,37 @@ public class TodoControllerTest {
 
  @MockBean
  private TodoService service;
-
+ 
  @Test
  public void retrieveTodos() throws Exception {
   List<Todo> mockList = Arrays.asList(new Todo(1, "Jack",
   "Learn Spring MVC", new Date(), false), new Todo(2, "Jack",
   "Learn Struts", new Date(), false));
 
-  when(service.retrieveTodos("Jack")).thenReturn(mockList);
+  when(service.retrieveTodos()).thenReturn(mockList);
+
+  MvcResult result = mvc
+		  .perform(MockMvcRequestBuilders
+		  .get("/todos")
+		  .accept(MediaType.APPLICATION_JSON))
+		  .andExpect(status().isOk())
+		  .andReturn();
+
+ String expected = "["
+  + "{id:1,user:Jack,description:\"Learn Spring MVC\",done:false}" +","
+  + "{id:2,user:Jack,description:\"Learn Struts\",done:false}" + "]";
+
+  JSONAssert.assertEquals(expected, result.getResponse()
+   .getContentAsString(), false);
+  }
+
+ @Test
+ public void retrieveTodosByName() throws Exception {
+  List<Todo> mockList = Arrays.asList(new Todo(1, "Jack",
+  "Learn Spring MVC", new Date(), false), new Todo(2, "Jack",
+  "Learn Struts", new Date(), false));
+
+  when(service.retrieveTodoByName("Jack")).thenReturn(mockList);
 
   MvcResult result = mvc
 		  .perform(MockMvcRequestBuilders
@@ -52,8 +74,8 @@ public class TodoControllerTest {
 		  .andReturn();
 
  String expected = "["
-  + "{id:1,user:Jack,desc:\"Learn Spring MVC\",done:false}" +","
-  + "{id:2,user:Jack,desc:\"Learn Struts\",done:false}" + "]";
+  + "{id:1,user:Jack,description:\"Learn Spring MVC\",done:false}" +","
+  + "{id:2,user:Jack,description:\"Learn Struts\",done:false}" + "]";
 
   JSONAssert.assertEquals(expected, result.getResponse()
    .getContentAsString(), false);
@@ -65,14 +87,14 @@ public class TodoControllerTest {
     Todo mockTodo = new Todo(1, "Jack", "Learn Spring MVC", 
     new Date(), false);
 
-    when(service.retrieveTodo(1)).thenReturn(mockTodo);
+    when(service.retrieveTodoById(1)).thenReturn(mockTodo);
 
     MvcResult result = mvc.perform(
     MockMvcRequestBuilders.get("/users/Jack/todos/1")
     .accept(MediaType.APPLICATION_JSON))
     .andExpect(status().isOk()).andReturn();
 
-    String expected = "{id:1,user:Jack,desc:\"Learn Spring MVC\",done:false}";
+    String expected = "{id:1,user:Jack,description:\"Learn Spring MVC\",done:false}";
 
    JSONAssert.assertEquals(expected, 
     result.getResponse().getContentAsString(), false);
@@ -84,20 +106,17 @@ public class TodoControllerTest {
  public void createTodo() throws Exception {
   Todo mockTodo = new Todo(1, "Jack", 
   "Learn Spring MVC", new Date(), false);
-  String todo = "{\"user\":\"Jack\",\"desc\":\"Learn Spring MVC\",\"done\":false}";
+  String todo = "{\"user\":\"Jack\",\"description\":\"Learn Spring MVC\",\"targetDate\":\"2019-08-08T12:29:42.000+0000\",\"done\":false}";
 
- when(service.addTodo("Jack", "Learn Spring MVC", null,false))
+ when(service.addTodo(mockTodo))
  .thenReturn(mockTodo);
 
 mvc
- .perform(MockMvcRequestBuilders.post("/users/Jack/todos")
+ .perform(MockMvcRequestBuilders.post("/todos")
  .content(todo)
  .contentType(MediaType.APPLICATION_JSON)
  )
- .andExpect(status().isCreated())
- .andExpect(
-   header().string("location",containsString("/users/Jack/todos/"
-  + 1)));
+ .andExpect(status().isNoContent());
 }
 
 }

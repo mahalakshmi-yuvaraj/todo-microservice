@@ -40,7 +40,6 @@ public class TodoController {
     @PostMapping("/todos")
     ResponseEntity<?> add(@RequestBody Todo todo) { 
       Todo createdTodo = todoService.addTodo(todo);
-      System.out.println("The value of the created Todo is " +createdTodo.toString());
       if (createdTodo == null) {
          return ResponseEntity.noContent().build();
       }
